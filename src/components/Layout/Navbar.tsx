@@ -28,9 +28,9 @@ export default function Navbar() {
           margin: '0 auto',
           padding: '0 32px',
           height: '72px',
-          display: 'grid',
-          gridTemplateColumns: '1fr auto 1fr',
+          display: 'flex',
           alignItems: 'center',
+          gap: '24px',
         }}>
 
           {/* Logo — left */}
@@ -47,8 +47,8 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Nav links — truly centered */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* Nav links — centered in the flex row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, justifyContent: 'center' }}>
             {navLinks.map(link => {
               const active = location.pathname === link.to;
               return (
@@ -79,8 +79,8 @@ export default function Navbar() {
             })}
           </div>
 
-          {/* Burger — right, pushed to the far right */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          {/* Burger — always at the far right, not part of the centered group */}
+          <div style={{ marginLeft: 'auto', flexShrink: 0 }}>
             <button
               onClick={() => setMenuOpen(o => !o)}
               style={{

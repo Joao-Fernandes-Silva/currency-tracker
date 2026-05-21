@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { X, Sun, Moon, Search, Check } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { SUPPORTED_CURRENCIES, CURRENCY_FLAGS } from '../../services/frankfurterApi';
+import { SUPPORTED_CURRENCIES, CURRENCY_FLAGS, MAJOR_CURRENCY_CODES } from '../../services/frankfurterApi';
 
 interface BurgerMenuProps {
   isOpen: boolean;
@@ -30,7 +30,17 @@ export default function BurgerMenu({ isOpen, onClose }: BurgerMenuProps) {
     if (!isOpen) { setCurrencySearch(''); setDropdownOpen(false); }
   }, [isOpen]);
 
-  const filteredCurrencies = Object.entries(SUPPORTED_CURRENCIES).filter(
+  // Sort: majors first, then the rest alphabetically
+  const sortedEntries: [string, string][] = [
+    ...MAJOR_CURRENCY_CODES
+      .filter(c => SUPPORTED_CURRENCIES[c])
+      .map(c => [c, SUPPORTED_CURRENCIES[c]] as [string, string]),
+    ...Object.entries(SUPPORTED_CURRENCIES)
+      .filter(([c]) => !MAJOR_CURRENCY_CODES.includes(c))
+      .sort(([a], [b]) => a.localeCompare(b)),
+  ];
+
+  const filteredCurrencies = sortedEntries.filter(
     ([code, name]) =>
       code.toLowerCase().includes(currencySearch.toLowerCase()) ||
       name.toLowerCase().includes(currencySearch.toLowerCase())
