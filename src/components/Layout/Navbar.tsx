@@ -49,8 +49,8 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Nav links — centered in the flex row */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, justifyContent: 'center' }}>
+          {/* Nav links — left-aligned after the logo */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             {navLinks.map(link => {
               const active = location.pathname === link.to;
               return (
