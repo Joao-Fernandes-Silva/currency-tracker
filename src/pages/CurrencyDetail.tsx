@@ -4,6 +4,7 @@ import { ArrowLeft, TrendingUp, TrendingDown } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { getLatestRates, getHistoricalRates, SUPPORTED_CURRENCIES, CURRENCY_FLAGS } from '../services/frankfurterApi';
 import LineChartComponent from '../components/Charts/LineChartComponent';
+import PageWrapper from '../components/Layout/PageWrapper';
 import type { HistoricalRate } from '../types';
 
 const PERIODS = [
@@ -12,6 +13,14 @@ const PERIODS = [
   { label: '3M', days: 90 },
   { label: '1Y', days: 365 },
 ];
+
+const card: React.CSSProperties = {
+  backgroundColor: 'var(--bg-card)',
+  border: '1px solid var(--border)',
+  borderRadius: '20px',
+  padding: '28px',
+  marginBottom: '24px',
+};
 
 export default function CurrencyDetail() {
   const { code } = useParams<{ code: string }>();
@@ -25,29 +34,23 @@ export default function CurrencyDetail() {
 
   useEffect(() => {
     if (!code) return;
-    const fetchAll = async () => {
-      setLoading(true);
-      try {
-        const [latest, hist] = await Promise.all([
-          getLatestRates(mainCurrency),
-          getHistoricalRates(mainCurrency, code, period),
-        ]);
+    setLoading(true);
+    Promise.all([
+      getLatestRates(mainCurrency),
+      getHistoricalRates(mainCurrency, code, period),
+    ])
+      .then(([latest, hist]) => {
         setRate(latest.rates[code] ?? null);
         setLastUpdated(latest.date);
         setHistory(hist);
-
         if (hist.length >= 2) {
           const first = hist[0].rate;
           const last = hist[hist.length - 1].rate;
           setPeriodChange(((last - first) / first) * 100);
         }
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAll();
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, [code, mainCurrency, period]);
 
   const minRate = history.length ? Math.min(...history.map(h => h.rate)) : 0;
@@ -55,49 +58,64 @@ export default function CurrencyDetail() {
   const avgRate = history.length ? history.reduce((s, h) => s + h.rate, 0) / history.length : 0;
 
   return (
-    <div className="flex-1 px-4 py-10 max-w-4xl mx-auto w-full">
-
+    <PageWrapper maxWidth="860px">
       <Link
         to="/currencies"
-        className="inline-flex items-center gap-2 text-sm mb-8 transition-colors"
-        style={{ color: 'var(--text-secondary)' }}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '6px',
+          fontSize: '14px',
+          color: 'var(--text-secondary)',
+          textDecoration: 'none',
+          marginBottom: '36px',
+        }}
       >
         <ArrowLeft size={15} /> Back to Currencies
       </Link>
 
       {/* Header */}
-      <div className="flex items-center gap-4 mb-8 flex-wrap">
-        <span className="text-5xl">{CURRENCY_FLAGS[code || ''] || '🏳️'}</span>
-        <div className="flex-1">
-          <h1 className="text-3xl font-bold gradient-text">{code}</h1>
-          <p style={{ color: 'var(--text-secondary)' }}>{SUPPORTED_CURRENCIES[code || ''] || 'Unknown'}</p>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '40px', flexWrap: 'wrap' }}>
+        <span style={{ fontSize: '56px' }}>{CURRENCY_FLAGS[code || ''] || '🏳️'}</span>
+        <div style={{ flex: 1 }}>
+          <h1 className="gradient-text" style={{ fontSize: '2.8rem', fontWeight: 800, lineHeight: 1 }}>
+            {code}
+          </h1>
+          <p style={{ color: 'var(--text-secondary)', marginTop: '6px' }}>
+            {SUPPORTED_CURRENCIES[code || ''] || 'Unknown Currency'}
+          </p>
         </div>
         {periodChange !== null && (
           <div
-            className="flex items-center gap-1.5 px-4 py-2 rounded-full font-semibold"
             style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '10px 18px',
+              borderRadius: '999px',
+              fontWeight: 700,
               color: periodChange >= 0 ? 'var(--positive)' : 'var(--negative)',
               backgroundColor: periodChange >= 0 ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
               border: `1px solid ${periodChange >= 0 ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'}`,
             }}
           >
-            {periodChange >= 0 ? <TrendingUp size={15} /> : <TrendingDown size={15} />}
+            {periodChange >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
             {Math.abs(periodChange).toFixed(2)}%
           </div>
         )}
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
+      {/* Stat cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', marginBottom: '24px' }}>
         {[
           { label: 'Current Rate', value: rate?.toFixed(4) ?? '—', accent: true },
           { label: `${period}d High`, value: maxRate.toFixed(4) },
           { label: `${period}d Low`, value: minRate.toFixed(4) },
           { label: `${period}d Average`, value: avgRate.toFixed(4) },
         ].map(stat => (
-          <div key={stat.label} className="card p-4">
-            <p className="text-xs mb-1.5" style={{ color: 'var(--text-secondary)' }}>{stat.label}</p>
-            <p className="text-xl font-bold" style={{ color: stat.accent ? 'var(--accent)' : 'var(--text-primary)' }}>
+          <div key={stat.label} style={card}>
+            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px' }}>{stat.label}</p>
+            <p style={{ fontSize: '1.6rem', fontWeight: 800, color: stat.accent ? 'var(--accent)' : 'var(--text-primary)' }}>
               {stat.value}
             </p>
           </div>
@@ -105,24 +123,30 @@ export default function CurrencyDetail() {
       </div>
 
       {/* Chart */}
-      <div className="card p-6 mb-5">
-        <div className="flex items-center justify-between mb-5">
+      <div style={card}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '24px' }}>
           <div>
-            <h2 className="font-semibold" style={{ color: 'var(--text-primary)' }}>Rate History</h2>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+            <h2 style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--text-primary)', marginBottom: '4px' }}>
+              Rate History
+            </h2>
+            <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
               1 {mainCurrency} → {code} · {lastUpdated}
             </p>
           </div>
-          <div className="flex gap-2">
+          <div style={{ display: 'flex', gap: '8px' }}>
             {PERIODS.map(p => (
               <button
                 key={p.days}
                 onClick={() => setPeriod(p.days)}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer"
                 style={{
+                  padding: '6px 14px',
+                  borderRadius: '10px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  border: period === p.days ? 'none' : '1px solid var(--border)',
                   backgroundColor: period === p.days ? 'var(--accent)' : 'var(--bg-secondary)',
                   color: period === p.days ? 'white' : 'var(--text-secondary)',
-                  border: period === p.days ? 'none' : '1px solid var(--border)',
                 }}
               >
                 {p.label}
@@ -131,7 +155,7 @@ export default function CurrencyDetail() {
           </div>
         </div>
         {loading ? (
-          <div className="h-64 flex items-center justify-center rounded-xl" style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}>
+          <div style={{ height: '260px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)' }}>
             Loading chart…
           </div>
         ) : (
@@ -140,23 +164,29 @@ export default function CurrencyDetail() {
       </div>
 
       {/* Quick reference */}
-      <div className="card p-6">
-        <h2 className="font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Quick Reference</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div style={{ ...card, marginBottom: 0 }}>
+        <h2 style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--text-primary)', marginBottom: '20px' }}>
+          Quick Reference
+        </h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
           {[1, 5, 10, 50, 100, 500, 1000, 5000].map(amt => (
             <div
               key={amt}
-              className="p-3 rounded-xl"
-              style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border)' }}
+              style={{
+                padding: '14px 16px',
+                borderRadius: '14px',
+                backgroundColor: 'var(--bg-secondary)',
+                border: '1px solid var(--border)',
+              }}
             >
-              <p className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>{amt} {mainCurrency}</p>
-              <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
+              <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '6px' }}>{amt} {mainCurrency}</p>
+              <p style={{ fontWeight: 700, fontSize: '14px', color: 'var(--text-primary)' }}>
                 {rate ? (amt * rate).toLocaleString(undefined, { maximumFractionDigits: 2 }) : '—'} {code}
               </p>
             </div>
           ))}
         </div>
       </div>
-    </div>
+    </PageWrapper>
   );
 }

@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, TrendingUp, TrendingDown } from 'lucide-react';
 import { getCryptoDetail, getCryptoHistory } from '../services/coinGeckoApi';
 import LineChartComponent from '../components/Charts/LineChartComponent';
+import PageWrapper from '../components/Layout/PageWrapper';
 
 const PERIODS = [
   { label: '24h', days: 1 },
@@ -10,6 +11,14 @@ const PERIODS = [
   { label: '1M', days: 30 },
   { label: '3M', days: 90 },
 ];
+
+const card: React.CSSProperties = {
+  backgroundColor: 'var(--bg-card)',
+  border: '1px solid var(--border)',
+  borderRadius: '20px',
+  padding: '28px',
+  marginBottom: '24px',
+};
 
 export default function CryptoDetail() {
   const { id } = useParams<{ id: string }>();
@@ -35,96 +44,97 @@ export default function CryptoDetail() {
 
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center" style={{ color: 'var(--text-secondary)' }}>
-        Loading…
-      </div>
+      <PageWrapper maxWidth="860px">
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '80px', color: 'var(--text-secondary)' }}>
+          Loading…
+        </div>
+      </PageWrapper>
     );
   }
 
   if (!detail) {
     return (
-      <div className="flex-1 flex items-center justify-center" style={{ color: 'var(--text-secondary)' }}>
-        Coin not found.
-      </div>
+      <PageWrapper maxWidth="860px">
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '80px', color: 'var(--text-secondary)' }}>
+          Coin not found.
+        </div>
+      </PageWrapper>
     );
   }
 
   const price = detail.market_data?.current_price?.usd;
-  const change24h = detail.market_data?.price_change_percentage_24h_in_currency?.usd;
-  const change7d = detail.market_data?.price_change_percentage_7d_in_currency?.usd;
-  const change30d = detail.market_data?.price_change_percentage_30d_in_currency?.usd;
+  const change24h = detail.market_data?.price_change_percentage_24h_in_currency?.usd ?? 0;
+  const change7d = detail.market_data?.price_change_percentage_7d_in_currency?.usd ?? 0;
+  const change30d = detail.market_data?.price_change_percentage_30d_in_currency?.usd ?? 0;
   const ath = detail.market_data?.ath?.usd;
   const minPrice = history.length ? Math.min(...history.map(h => h.price)) : 0;
   const maxPrice = history.length ? Math.max(...history.map(h => h.price)) : 0;
 
   return (
-    <div className="flex-1 px-4 md:px-8 py-8 max-w-4xl mx-auto w-full">
+    <PageWrapper maxWidth="860px">
       <Link
         to="/crypto"
-        className="inline-flex items-center gap-2 text-sm mb-6 transition-colors"
-        style={{ color: 'var(--text-secondary)' }}
+        style={{
+          display: 'inline-flex', alignItems: 'center', gap: '6px',
+          fontSize: '14px', color: 'var(--text-secondary)', textDecoration: 'none', marginBottom: '36px',
+        }}
       >
-        <ArrowLeft size={16} /> Back to Crypto
+        <ArrowLeft size={15} /> Back to Crypto
       </Link>
 
       {/* Header */}
-      <div className="flex items-center gap-4 mb-8 flex-wrap">
-        <img src={detail.image?.large} alt={detail.name} className="w-14 h-14 rounded-full" />
-        <div>
-          <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
-            {detail.name}
-          </h1>
-          <p className="uppercase text-sm" style={{ color: 'var(--text-secondary)' }}>{detail.symbol}</p>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '40px', flexWrap: 'wrap' }}>
+        <img src={detail.image?.large} alt={detail.name} style={{ width: '64px', height: '64px', borderRadius: '50%' }} />
+        <div style={{ flex: 1 }}>
+          <h1 className="gradient-text" style={{ fontSize: '2.4rem', fontWeight: 800, lineHeight: 1 }}>{detail.name}</h1>
+          <p style={{ color: 'var(--text-secondary)', marginTop: '6px', textTransform: 'uppercase', fontSize: '13px', fontWeight: 600 }}>
+            {detail.symbol}
+          </p>
         </div>
-        <div className="ml-auto text-right">
-          <p className="text-3xl font-bold" style={{ color: 'var(--accent)' }}>
+        <div style={{ textAlign: 'right' }}>
+          <p style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--accent)', lineHeight: 1 }}>
             ${price?.toLocaleString(undefined, { maximumFractionDigits: 6 })}
           </p>
-          {change24h !== undefined && (
-            <p
-              className="text-sm font-medium flex items-center gap-1 justify-end mt-1"
-              style={{ color: change24h >= 0 ? 'var(--positive)' : 'var(--negative)' }}
-            >
-              {change24h >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-              {change24h >= 0 ? '+' : ''}{change24h?.toFixed(2)}% (24h)
-            </p>
-          )}
+          <div
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '5px', marginTop: '8px',
+              fontSize: '14px', fontWeight: 700,
+              color: change24h >= 0 ? 'var(--positive)' : 'var(--negative)',
+            }}
+          >
+            {change24h >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+            {change24h >= 0 ? '+' : ''}{change24h.toFixed(2)}% (24h)
+          </div>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', marginBottom: '24px' }}>
         {[
-          { label: '24h Change', value: `${change24h >= 0 ? '+' : ''}${change24h?.toFixed(2)}%`, color: change24h >= 0 ? 'var(--positive)' : 'var(--negative)' },
-          { label: '7d Change', value: `${change7d >= 0 ? '+' : ''}${change7d?.toFixed(2)}%`, color: change7d >= 0 ? 'var(--positive)' : 'var(--negative)' },
-          { label: '30d Change', value: `${change30d >= 0 ? '+' : ''}${change30d?.toFixed(2)}%`, color: change30d >= 0 ? 'var(--positive)' : 'var(--negative)' },
+          { label: '24h Change', value: `${change24h >= 0 ? '+' : ''}${change24h.toFixed(2)}%`, color: change24h >= 0 ? 'var(--positive)' : 'var(--negative)' },
+          { label: '7d Change', value: `${change7d >= 0 ? '+' : ''}${change7d.toFixed(2)}%`, color: change7d >= 0 ? 'var(--positive)' : 'var(--negative)' },
+          { label: '30d Change', value: `${change30d >= 0 ? '+' : ''}${change30d.toFixed(2)}%`, color: change30d >= 0 ? 'var(--positive)' : 'var(--negative)' },
           { label: 'All-Time High', value: `$${ath?.toLocaleString(undefined, { maximumFractionDigits: 4 })}`, color: 'var(--text-primary)' },
-        ].map(stat => (
-          <div
-            key={stat.label}
-            className="p-4 rounded-2xl"
-            style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
-          >
-            <p className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>{stat.label}</p>
-            <p className="text-lg font-bold" style={{ color: stat.color }}>{stat.value}</p>
+        ].map(s => (
+          <div key={s.label} style={card}>
+            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px' }}>{s.label}</p>
+            <p style={{ fontSize: '1.5rem', fontWeight: 800, color: s.color }}>{s.value}</p>
           </div>
         ))}
       </div>
 
       {/* Chart */}
-      <div
-        className="rounded-2xl p-6 mb-6"
-        style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
-      >
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-lg" style={{ color: 'var(--text-primary)' }}>Price History (USD)</h2>
-          <div className="flex gap-2">
+      <div style={card}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '24px' }}>
+          <h2 style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--text-primary)' }}>Price History (USD)</h2>
+          <div style={{ display: 'flex', gap: '8px' }}>
             {PERIODS.map(p => (
               <button
                 key={p.days}
                 onClick={() => setPeriod(p.days)}
-                className="px-3 py-1 rounded-lg text-sm font-medium transition-colors cursor-pointer"
                 style={{
+                  padding: '6px 14px', borderRadius: '10px', fontSize: '12px', fontWeight: 600, cursor: 'pointer',
+                  border: period === p.days ? 'none' : '1px solid var(--border)',
                   backgroundColor: period === p.days ? 'var(--accent)' : 'var(--bg-secondary)',
                   color: period === p.days ? 'white' : 'var(--text-secondary)',
                 }}
@@ -134,9 +144,8 @@ export default function CryptoDetail() {
             ))}
           </div>
         </div>
-
         {chartLoading ? (
-          <div className="h-64 flex items-center justify-center" style={{ color: 'var(--text-secondary)' }}>
+          <div style={{ height: '260px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)' }}>
             Loading chart…
           </div>
         ) : (
@@ -144,17 +153,17 @@ export default function CryptoDetail() {
         )}
       </div>
 
-      {/* Period stats */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="p-4 rounded-2xl" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-          <p className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Period High</p>
-          <p className="text-xl font-bold" style={{ color: 'var(--positive)' }}>
+      {/* Period high/low */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+        <div style={card}>
+          <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px' }}>Period High</p>
+          <p style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--positive)' }}>
             ${maxPrice.toLocaleString(undefined, { maximumFractionDigits: 6 })}
           </p>
         </div>
-        <div className="p-4 rounded-2xl" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-          <p className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Period Low</p>
-          <p className="text-xl font-bold" style={{ color: 'var(--negative)' }}>
+        <div style={card}>
+          <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px' }}>Period Low</p>
+          <p style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--negative)' }}>
             ${minPrice.toLocaleString(undefined, { maximumFractionDigits: 6 })}
           </p>
         </div>
@@ -162,20 +171,21 @@ export default function CryptoDetail() {
 
       {/* Description */}
       {detail.description?.en && (
-        <div
-          className="rounded-2xl p-6"
-          style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
-        >
-          <h2 className="font-semibold text-lg mb-3" style={{ color: 'var(--text-primary)' }}>About {detail.name}</h2>
+        <div style={{ ...card, marginBottom: 0 }}>
+          <h2 style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--text-primary)', marginBottom: '16px' }}>
+            About {detail.name}
+          </h2>
           <p
-            className="text-sm leading-relaxed line-clamp-6"
-            style={{ color: 'var(--text-secondary)' }}
+            style={{ fontSize: '14px', lineHeight: 1.75, color: 'var(--text-secondary)' }}
             dangerouslySetInnerHTML={{
-              __html: detail.description.en.replace(/<a[^>]*>/g, '').replace(/<\/a>/g, ''),
+              __html: detail.description.en
+                .split('\r\n\r\n')[0]
+                .replace(/<a[^>]*>/g, '')
+                .replace(/<\/a>/g, ''),
             }}
           />
         </div>
       )}
-    </div>
+    </PageWrapper>
   );
 }

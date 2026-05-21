@@ -12,9 +12,9 @@ function App() {
   return (
     <AppProvider>
       <BrowserRouter>
-        <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--bg-primary)' }}>
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-primary)' }}>
           <Navbar />
-          <main className="flex-1 flex flex-col">
+          <main style={{ flex: 1 }}>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/tracker" element={<CurrencyTracker />} />
@@ -25,8 +25,13 @@ function App() {
             </Routes>
           </main>
           <footer
-            className="py-4 text-center text-xs"
-            style={{ color: 'var(--text-secondary)', borderTop: '1px solid var(--border)' }}
+            style={{
+              padding: '20px',
+              textAlign: 'center',
+              fontSize: '12px',
+              color: 'var(--text-secondary)',
+              borderTop: '1px solid var(--border)',
+            }}
           >
             Data: Frankfurter API (ECB) · CoinGecko · Updated daily
           </footer>
