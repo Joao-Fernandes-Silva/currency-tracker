@@ -6,9 +6,9 @@ import { getLatestRates, SUPPORTED_CURRENCIES, CURRENCY_SYMBOLS } from '../servi
 import PageWrapper from '../components/Layout/PageWrapper';
 
 const BADGE_COLORS = [
-  '#8b5cf6', '#3b82f6', '#10b981', '#f59e0b',
-  '#ef4444', '#06b6d4', '#ec4899', '#84cc16',
-  '#f97316', '#6366f1', '#14b8a6', '#a855f7',
+  '#4f46e5', '#0284c7', '#059669', '#d97706',
+  '#7c3aed', '#0891b2', '#0369a1', '#047857',
+  '#6d28d9', '#0e7490', '#065f46', '#b45309',
 ];
 
 const badgeColor = (code: string) =>

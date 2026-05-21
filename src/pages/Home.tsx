@@ -149,9 +149,8 @@ export default function Home() {
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(4, 1fr)',
-            borderRadius: '16px',
-            overflow: 'hidden',
             border: '1px solid var(--border)',
+            borderRadius: '16px',
           }}
         >
           {stats.map((s, i) => (
@@ -162,6 +161,7 @@ export default function Home() {
                 padding: '28px 20px',
                 textAlign: 'center',
                 borderRight: i < stats.length - 1 ? '1px solid var(--border)' : 'none',
+                borderRadius: i === 0 ? '16px 0 0 16px' : i === stats.length - 1 ? '0 16px 16px 0' : '0',
               }}
             >
               <p className="gradient-text" style={{ fontSize: '2.2rem', fontWeight: 800, lineHeight: 1 }}>
