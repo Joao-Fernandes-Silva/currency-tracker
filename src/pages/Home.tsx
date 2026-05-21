@@ -164,7 +164,7 @@ export default function Home() {
                 borderRadius: i === 0 ? '16px 0 0 16px' : i === stats.length - 1 ? '0 16px 16px 0' : '0',
               }}
             >
-              <p className="gradient-text" style={{ fontSize: '2.2rem', fontWeight: 800, lineHeight: 1 }}>
+              <p className="gradient-text" style={{ fontSize: '2.2rem', fontWeight: 800, lineHeight: 1.3 }}>
                 {s.value}
               </p>
               <p
