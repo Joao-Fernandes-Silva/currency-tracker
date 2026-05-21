@@ -158,14 +158,14 @@ export default function CurrencyTracker() {
                 <optgroup label="── Major Currencies" style={{ backgroundColor: 'var(--bg-card)' }}>
                   {majors.map(code => (
                     <option key={code} value={code} style={{ backgroundColor: 'var(--bg-card)' }}>
-                      {CURRENCY_FLAGS[code]} {code} — {SUPPORTED_CURRENCIES[code]}
+                      {code} — {SUPPORTED_CURRENCIES[code]}
                     </option>
                   ))}
                 </optgroup>
                 <optgroup label="── All Currencies" style={{ backgroundColor: 'var(--bg-card)' }}>
                   {others.map(code => (
                     <option key={code} value={code} style={{ backgroundColor: 'var(--bg-card)' }}>
-                      {CURRENCY_FLAGS[code]} {code} — {SUPPORTED_CURRENCIES[code]}
+                      {code} — {SUPPORTED_CURRENCIES[code]}
                     </option>
                   ))}
                 </optgroup>
