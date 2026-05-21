@@ -24,12 +24,12 @@ export default function Navbar() {
         zIndex: 40,
       }}>
         <div style={{
+          position: 'relative',
           width: '100%',
           padding: '0 32px',
           height: '72px',
           display: 'flex',
           alignItems: 'center',
-          gap: '16px',
           boxSizing: 'border-box',
         }}>
 
@@ -47,8 +47,15 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Nav links — left-aligned after the logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* Nav links — absolutely centered in the navbar */}
+          <div style={{
+            position: 'absolute',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}>
             {navLinks.map(link => {
               const active = location.pathname === link.to;
               return (
