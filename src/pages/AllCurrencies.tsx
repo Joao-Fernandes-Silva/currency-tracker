@@ -5,6 +5,15 @@ import { useApp } from '../context/AppContext';
 import { getLatestRates, SUPPORTED_CURRENCIES, CURRENCY_SYMBOLS } from '../services/frankfurterApi';
 import PageWrapper from '../components/Layout/PageWrapper';
 
+const BADGE_COLORS = [
+  '#8b5cf6', '#3b82f6', '#10b981', '#f59e0b',
+  '#ef4444', '#06b6d4', '#ec4899', '#84cc16',
+  '#f97316', '#6366f1', '#14b8a6', '#a855f7',
+];
+
+const badgeColor = (code: string) =>
+  BADGE_COLORS[code.charCodeAt(0) % BADGE_COLORS.length];
+
 interface CurrencyRow {
   code: string;
   name: string;
@@ -205,7 +214,7 @@ export default function AllCurrencies() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                   <div style={{
                     width: '48px', height: '48px', borderRadius: '12px', flexShrink: 0,
-                    background: 'var(--gradient)',
+                    backgroundColor: badgeColor(row.code),
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
                     <span style={{ fontSize: '18px', fontWeight: 700, color: 'white' }}>
