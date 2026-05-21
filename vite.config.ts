@@ -8,9 +8,9 @@ export default defineConfig({
   server: {
     proxy: {
       '/api/frankfurter': {
-        target: 'https://api.frankfurter.app',
+        target: 'https://api.frankfurter.dev',
         changeOrigin: true,
-        rewrite: path => path.replace(/^\/api\/frankfurter/, ''),
+        rewrite: path => path.replace(/^\/api\/frankfurter/, '/v1'),
       },
       '/api/coingecko': {
         target: 'https://api.coingecko.com/api/v3',
