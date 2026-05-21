@@ -7,29 +7,37 @@
 }
 
 :root {
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-card: #1e293b;
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --accent: #38bdf8;
-  --accent-hover: #0ea5e9;
-  --border: #334155;
+  --bg-primary: #080d1a;
+  --bg-secondary: #0f1629;
+  --bg-card: #131d35;
+  --bg-card-hover: #1a2540;
+  --text-primary: #e8eaf0;
+  --text-secondary: #7b86a0;
+  --accent: #8b5cf6;
+  --accent-hover: #7c3aed;
+  --accent-blue: #38bdf8;
+  --border: #1e2d4a;
+  --border-light: #243352;
   --positive: #22c55e;
   --negative: #ef4444;
+  --gradient: linear-gradient(135deg, #8b5cf6 0%, #38bdf8 100%);
 }
 
 .light {
-  --bg-primary: #f8fafc;
-  --bg-secondary: #e2e8f0;
+  --bg-primary: #f0f4ff;
+  --bg-secondary: #e2e8f8;
   --bg-card: #ffffff;
+  --bg-card-hover: #f5f7ff;
   --text-primary: #0f172a;
   --text-secondary: #64748b;
-  --accent: #0284c7;
-  --accent-hover: #0369a1;
-  --border: #cbd5e1;
+  --accent: #7c3aed;
+  --accent-hover: #6d28d9;
+  --accent-blue: #0284c7;
+  --border: #c7d2e8;
+  --border-light: #dde4f0;
   --positive: #16a34a;
   --negative: #dc2626;
+  --gradient: linear-gradient(135deg, #7c3aed 0%, #0284c7 100%);
 }
 
 body {
@@ -46,6 +54,29 @@ body {
   flex-direction: column;
 }
 
-::-webkit-scrollbar { width: 6px; }
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg-secondary); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 10px; }
+
+/* Reusable card */
+.card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Animated gradient border on focus */
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+}

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp, Menu } from 'lucide-react';
 import BurgerMenu from './BurgerMenu';
 
 const navLinks = [
@@ -20,70 +20,80 @@ export default function Navbar() {
         style={{
           backgroundColor: 'var(--bg-secondary)',
           borderBottom: '1px solid var(--border)',
+          backdropFilter: 'blur(12px)',
         }}
-        className="sticky top-0 z-40 px-4 md:px-8"
+        className="sticky top-0 z-40"
       >
-        <div className="max-w-7xl mx-auto flex items-center justify-between h-16">
+        <div className="max-w-6xl mx-auto px-6 flex items-center justify-between h-16">
+
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2" style={{ color: 'var(--accent)' }}>
-            <TrendingUp size={24} />
-            <span className="font-bold text-lg tracking-tight" style={{ color: 'var(--text-primary)' }}>
+          <Link to="/" className="flex items-center gap-2.5 shrink-0">
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center"
+              style={{ background: 'var(--gradient)' }}
+            >
+              <TrendingUp size={16} color="white" />
+            </div>
+            <span className="font-bold text-base tracking-tight" style={{ color: 'var(--text-primary)' }}>
               CurrencyTrack
             </span>
           </Link>
 
-          {/* Nav links */}
-          <div className="hidden md:flex items-center gap-6">
-            {navLinks.map(link => (
+          {/* Nav links — center */}
+          <div className="hidden md:flex items-center gap-1">
+            {navLinks.map(link => {
+              const active = location.pathname === link.to;
+              return (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                  style={{
+                    color: active ? 'white' : 'var(--text-secondary)',
+                    backgroundColor: active ? 'var(--accent)' : 'transparent',
+                  }}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Burger menu button — always on the right */}
+          <button
+            onClick={() => setMenuOpen(true)}
+            className="flex items-center justify-center w-9 h-9 rounded-lg transition-colors cursor-pointer shrink-0"
+            style={{
+              backgroundColor: 'var(--bg-card)',
+              border: '1px solid var(--border)',
+              color: 'var(--text-secondary)',
+            }}
+            aria-label="Open settings"
+          >
+            <Menu size={18} />
+          </button>
+        </div>
+
+        {/* Mobile nav links */}
+        <div
+          className="md:hidden flex gap-1 px-6 pb-3"
+        >
+          {navLinks.map(link => {
+            const active = location.pathname === link.to;
+            return (
               <Link
                 key={link.to}
                 to={link.to}
-                className="text-sm font-medium transition-colors"
+                className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all"
                 style={{
-                  color: location.pathname === link.to ? 'var(--accent)' : 'var(--text-secondary)',
+                  color: active ? 'white' : 'var(--text-secondary)',
+                  backgroundColor: active ? 'var(--accent)' : 'transparent',
                 }}
               >
                 {link.label}
               </Link>
-            ))}
-          </div>
-
-          {/* Burger button */}
-          <button
-            onClick={() => setMenuOpen(true)}
-            className="flex flex-col gap-1.5 p-2 rounded-lg transition-colors cursor-pointer"
-            style={{ color: 'var(--text-secondary)' }}
-            aria-label="Open menu"
-          >
-            <span
-              className="block w-5 h-0.5 rounded transition-all"
-              style={{ backgroundColor: 'var(--text-primary)' }}
-            />
-            <span
-              className="block w-5 h-0.5 rounded transition-all"
-              style={{ backgroundColor: 'var(--text-primary)' }}
-            />
-            <span
-              className="block w-3.5 h-0.5 rounded transition-all"
-              style={{ backgroundColor: 'var(--text-primary)' }}
-            />
-          </button>
-        </div>
-
-        {/* Mobile nav */}
-        <div className="md:hidden flex gap-4 pb-3">
-          {navLinks.map(link => (
-            <Link
-              key={link.to}
-              to={link.to}
-              className="text-sm font-medium"
-              style={{
-                color: location.pathname === link.to ? 'var(--accent)' : 'var(--text-secondary)',
-              }}
-            >
-              {link.label}
-            </Link>
-          ))}
+            );
+          })}
         </div>
       </nav>
 
