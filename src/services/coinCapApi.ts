@@ -1,7 +1,8 @@
-// CoinCap API — free, no key required, generous rate limits
-// Docs: https://docs.coincap.io
+// CoinGecko API — free public tier, no key required when accessed server-side
+// Docs: https://docs.coingecko.com/reference/introduction
+// Proxied through Vite: /api/coingecko/* → https://api.coingecko.com/api/v3/*
 
-const BASE_URL = '/api/coincap';
+const BASE_URL = '/api/coingecko';
 
 const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -63,35 +64,39 @@ export interface CoinHistoryPoint {
 // ── Public API ──────────────────────────────────────────────────
 export const getTopCoins = async (limit = 50): Promise<CoinAsset[]> =>
   withRetry(async () => {
-    const data = await apiFetch(`${BASE_URL}/assets?limit=${limit}`);
-    return data.data.map((a: any) => ({
+    const data: any[] = await apiFetch(
+      `${BASE_URL}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${limit}&page=1&sparkline=false`,
+    );
+    return data.map(a => ({
       id: a.id,
-      rank: parseInt(a.rank) || 0,
+      rank: a.market_cap_rank ?? 0,
       symbol: (a.symbol || '').toUpperCase(),
       name: a.name,
-      current_price: parseFloat(a.priceUsd) || 0,
-      price_change_percentage_24h: parseFloat(a.changePercent24Hr) || 0,
-      market_cap: parseFloat(a.marketCapUsd) || 0,
-      total_volume: parseFloat(a.volumeUsd24Hr) || 0,
-      image: `https://assets.coincap.io/assets/icons/${(a.symbol || '').toLowerCase()}@2x.png`,
+      current_price: a.current_price ?? 0,
+      price_change_percentage_24h: a.price_change_percentage_24h ?? 0,
+      market_cap: a.market_cap ?? 0,
+      total_volume: a.total_volume ?? 0,
+      image: a.image ?? '',
     }));
   });
 
 export const getCoinDetail = async (id: string): Promise<CoinDetailData> =>
   withRetry(async () => {
-    const data = await apiFetch(`${BASE_URL}/assets/${id}`);
-    const a = data.data;
+    const a = await apiFetch(
+      `${BASE_URL}/coins/${id}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false`,
+    );
+    const md = a.market_data ?? {};
     return {
       id: a.id,
-      rank: parseInt(a.rank) || 0,
+      rank: a.market_cap_rank ?? 0,
       symbol: (a.symbol || '').toUpperCase(),
       name: a.name,
-      current_price: parseFloat(a.priceUsd) || 0,
-      price_change_percentage_24h: parseFloat(a.changePercent24Hr) || 0,
-      market_cap: parseFloat(a.marketCapUsd) || 0,
-      supply: parseFloat(a.supply) || 0,
-      maxSupply: a.maxSupply ? parseFloat(a.maxSupply) : null,
-      image: `https://assets.coincap.io/assets/icons/${(a.symbol || '').toLowerCase()}@2x.png`,
+      current_price: md.current_price?.usd ?? 0,
+      price_change_percentage_24h: md.price_change_percentage_24h ?? 0,
+      market_cap: md.market_cap?.usd ?? 0,
+      supply: md.circulating_supply ?? 0,
+      maxSupply: md.max_supply ?? null,
+      image: a.image?.large ?? a.image?.small ?? '',
     };
   });
 
@@ -100,23 +105,19 @@ export const getCoinHistory = async (
   days: number = 30,
 ): Promise<CoinHistoryPoint[]> =>
   withRetry(async () => {
-    const endMs = Date.now();
-    const startMs = endMs - days * 86_400_000;
-
-    // CoinCap interval: h1 for ≤2d, h2 for ≤7d, d1 for longer
-    const interval = days <= 2 ? 'h1' : days <= 7 ? 'h2' : 'd1';
-
+    // CoinGecko auto-selects interval: daily for >90d, hourly for ≤90d
+    const interval = days <= 90 ? 'daily' : 'daily';
     const data = await apiFetch(
-      `${BASE_URL}/assets/${id}/history?interval=${interval}&start=${startMs}&end=${endMs}`,
+      `${BASE_URL}/coins/${id}/market_chart?vs_currency=usd&days=${days}&interval=${interval}`,
     );
 
-    const pts: any[] = data.data ?? [];
+    const pts: [number, number][] = data.prices ?? [];
     // Downsample to ≤ 300 points so charts stay fast
     const step = Math.max(1, Math.floor(pts.length / 300));
     return pts
       .filter((_, i) => i % step === 0)
-      .map(p => ({
-        date: new Date(p.time).toLocaleDateString(),
-        price: parseFloat(parseFloat(p.priceUsd).toFixed(8)),
+      .map(([time, price]) => ({
+        date: new Date(time).toLocaleDateString(),
+        price: parseFloat(price.toFixed(8)),
       }));
   });
