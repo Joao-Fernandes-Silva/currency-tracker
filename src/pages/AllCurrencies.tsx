@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, TrendingUp, TrendingDown, ArrowRight } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { getLatestRates, SUPPORTED_CURRENCIES } from '../services/frankfurterApi';
+import { getLatestRates, SUPPORTED_CURRENCIES, CURRENCY_SYMBOLS } from '../services/frankfurterApi';
 import PageWrapper from '../components/Layout/PageWrapper';
 
 interface CurrencyRow {
@@ -208,12 +208,12 @@ export default function AllCurrencies() {
                     background: 'var(--gradient)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
-                    <span style={{ fontSize: '12px', fontWeight: 800, color: 'white', letterSpacing: '0.02em' }}>
-                      {row.code.slice(0, 3)}
+                    <span style={{ fontSize: '18px', fontWeight: 700, color: 'white' }}>
+                      {CURRENCY_SYMBOLS[row.code] ?? row.code.slice(0, 2)}
                     </span>
                   </div>
                   <div>
-                    <p style={{ fontWeight: 800, fontSize: '18px', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>{row.code}</p>
+                    <p style={{ fontWeight: 600, fontSize: '18px', color: 'var(--text-primary)', letterSpacing: '0.04em' }}>{row.code}</p>
                     <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>{row.name}</p>
                   </div>
                 </div>

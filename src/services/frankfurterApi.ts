@@ -31,6 +31,16 @@ export const CURRENCY_FLAGS: Record<string, string> = {
   ZAR: '🇿🇦',
 };
 
+export const CURRENCY_SYMBOLS: Record<string, string> = {
+  AUD: 'A$', BGN: 'лв', BRL: 'R$', CAD: 'C$', CHF: 'Fr',
+  CNY: '¥',  CZK: 'Kč', DKK: 'kr', EUR: '€',  GBP: '£',
+  HKD: 'HK$',HUF: 'Ft', IDR: 'Rp', ILS: '₪',  INR: '₹',
+  ISK: 'kr',  JPY: '¥',  KRW: '₩',  MXN: '$',  MYR: 'RM',
+  NOK: 'kr',  NZD: 'NZ$',PHP: '₱',  PLN: 'zł', RON: 'lei',
+  SEK: 'kr',  SGD: 'S$', THB: '฿',  TRY: '₺',  USD: '$',
+  ZAR: 'R',
+};
+
 // Major world currencies — shown first in all selectors
 export const MAJOR_CURRENCY_CODES = [
   'USD', 'EUR', 'GBP', 'JPY', 'CHF', 'CAD', 'AUD', 'CNY',

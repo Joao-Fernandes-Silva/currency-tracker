@@ -7,7 +7,7 @@ interface PageWrapperProps {
 
 export default function PageWrapper({ children, maxWidth = '1100px' }: PageWrapperProps) {
   return (
-    <div style={{ width: '100%', padding: '0 24px' }}>
+    <div style={{ width: '100%', padding: '0 32px', boxSizing: 'border-box', overflowX: 'hidden' }}>
       <div
         style={{
           maxWidth,
