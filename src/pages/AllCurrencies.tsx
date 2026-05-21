@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, TrendingUp, TrendingDown } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import axios from 'axios';
 import { getLatestRates, SUPPORTED_CURRENCIES, CURRENCY_FLAGS } from '../services/frankfurterApi';
 
 interface CurrencyRow {
@@ -46,9 +47,7 @@ export default function AllCurrencies() {
         weekAgoDate.setDate(weekAgoDate.getDate() - 7);
         const weekAgoStr = weekAgoDate.toISOString().split('T')[0];
 
-        const { data: weekData } = await import('axios').then(({ default: axios }) =>
-          axios.get(`https://api.frankfurter.app/${weekAgoStr}?from=${mainCurrency}`)
-        );
+        const { data: weekData } = await axios.get(`https://api.frankfurter.app/${weekAgoStr}?from=${mainCurrency}`);
 
         setRows(prev =>
           prev.map(row => {
