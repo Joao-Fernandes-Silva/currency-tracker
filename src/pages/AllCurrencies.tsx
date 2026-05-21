@@ -43,7 +43,7 @@ export default function AllCurrencies() {
         const weekAgoStr = weekAgo.toISOString().split('T')[0];
 
         const weekRes = await fetch(
-          `https://api.frankfurter.app/${weekAgoStr}?from=${mainCurrency}`
+          `/api/frankfurter/${weekAgoStr}?from=${mainCurrency}`
         );
         if (!weekRes.ok) throw new Error(`HTTP ${weekRes.status}`);
         const weekData = await weekRes.json();

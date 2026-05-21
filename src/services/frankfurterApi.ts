@@ -1,6 +1,6 @@
 import type { ExchangeRate, HistoricalRate } from '../types';
 
-const BASE_URL = 'https://api.frankfurter.app';
+const BASE_URL = '/api/frankfurter';
 
 export const SUPPORTED_CURRENCIES: Record<string, string> = {
   AUD: 'Australian Dollar',   BGN: 'Bulgarian Lev',

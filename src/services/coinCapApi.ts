@@ -1,7 +1,7 @@
 // CoinCap API — free, no key required, generous rate limits
 // Docs: https://docs.coincap.io
 
-const BASE_URL = 'https://api.coincap.io/v2';
+const BASE_URL = '/api/coincap';
 
 const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
 
