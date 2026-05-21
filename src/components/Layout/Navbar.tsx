@@ -24,14 +24,12 @@ export default function Navbar() {
         zIndex: 40,
       }}>
         <div style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
           width: '100%',
-          padding: '0 24px',
+          padding: '0 32px',
           height: '72px',
           display: 'flex',
           alignItems: 'center',
-          gap: '24px',
+          gap: '16px',
           boxSizing: 'border-box',
         }}>
 
