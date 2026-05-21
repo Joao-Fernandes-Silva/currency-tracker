@@ -7,9 +7,11 @@ import PageWrapper from '../components/Layout/PageWrapper';
 
 const PERIODS = [
   { label: '24h', days: 1 },
-  { label: '7d', days: 7 },
-  { label: '1M', days: 30 },
-  { label: '3M', days: 90 },
+  { label: '7d',  days: 7 },
+  { label: '1M',  days: 30 },
+  { label: '3M',  days: 90 },
+  { label: '1Y',  days: 365 },
+  { label: '3Y',  days: 1095 },
 ];
 
 const card: React.CSSProperties = {

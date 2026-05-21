@@ -47,9 +47,29 @@ export const CURRENCY_FLAGS: Record<string, string> = {
   ZAR: '🇿🇦',
 };
 
+// Major currencies to show first in selectors
+export const MAJOR_CURRENCY_CODES = [
+  'USD', 'EUR', 'GBP', 'JPY', 'CHF', 'CAD', 'AUD', 'CNY',
+  'HKD', 'SGD', 'NOK', 'SEK', 'DKK', 'NZD', 'MXN', 'INR',
+];
+
+const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+async function fetchWithRetry<T>(fn: () => Promise<T>, retries = 3, backoff = 600): Promise<T> {
+  try {
+    return await fn();
+  } catch (err) {
+    if (retries <= 0) throw err;
+    await delay(backoff);
+    return fetchWithRetry(fn, retries - 1, backoff * 1.5);
+  }
+}
+
 export const getLatestRates = async (base: string): Promise<ExchangeRate> => {
-  const { data } = await axios.get(`${BASE_URL}/latest?from=${base}`);
-  return data;
+  return fetchWithRetry(async () => {
+    const { data } = await axios.get(`${BASE_URL}/latest?from=${base}`, { timeout: 10000 });
+    return data;
+  });
 };
 
 export const getHistoricalRates = async (
@@ -57,17 +77,19 @@ export const getHistoricalRates = async (
   target: string,
   days: number = 30
 ): Promise<HistoricalRate[]> => {
-  const end = new Date();
-  const start = new Date();
-  start.setDate(start.getDate() - days);
+  return fetchWithRetry(async () => {
+    const end = new Date();
+    const start = new Date();
+    start.setDate(start.getDate() - days);
 
-  const fmt = (d: Date) => d.toISOString().split('T')[0];
-  const { data } = await axios.get(
-    `${BASE_URL}/${fmt(start)}..${fmt(end)}?from=${base}&to=${target}`
-  );
+    const fmt = (d: Date) => d.toISOString().split('T')[0];
+    const url = `${BASE_URL}/${fmt(start)}..${fmt(end)}?from=${base}&to=${target}`;
+    const { data } = await axios.get(url, { timeout: 15000 });
 
-  return Object.entries(data.rates).map(([date, rates]) => ({
-    date,
-    rate: (rates as Record<string, number>)[target],
-  }));
+    if (!data.rates) return [];
+    return Object.entries(data.rates).map(([date, rates]) => ({
+      date,
+      rate: (rates as Record<string, number>)[target] ?? 0,
+    }));
+  });
 };

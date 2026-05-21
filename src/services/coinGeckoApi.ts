@@ -3,31 +3,49 @@ import type { CryptoAsset } from '../types';
 
 const BASE_URL = 'https://api.coingecko.com/api/v3';
 
+const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+async function fetchWithRetry<T>(fn: () => Promise<T>, retries = 3, backoff = 800): Promise<T> {
+  try {
+    return await fn();
+  } catch (err) {
+    if (retries <= 0) throw err;
+    await delay(backoff);
+    return fetchWithRetry(fn, retries - 1, backoff * 1.5);
+  }
+}
+
 export const getTopCryptos = async (vsCurrency = 'usd', perPage = 50): Promise<CryptoAsset[]> => {
-  const { data } = await axios.get(`${BASE_URL}/coins/markets`, {
-    params: {
-      vs_currency: vsCurrency,
-      order: 'market_cap_desc',
-      per_page: perPage,
-      page: 1,
-      sparkline: true,
-      price_change_percentage: '7d',
-    },
+  return fetchWithRetry(async () => {
+    const { data } = await axios.get(`${BASE_URL}/coins/markets`, {
+      timeout: 15000,
+      params: {
+        vs_currency: vsCurrency,
+        order: 'market_cap_desc',
+        per_page: perPage,
+        page: 1,
+        sparkline: true,
+        price_change_percentage: '7d',
+      },
+    });
+    return data;
   });
-  return data;
 };
 
 export const getCryptoDetail = async (id: string) => {
-  const { data } = await axios.get(`${BASE_URL}/coins/${id}`, {
-    params: {
-      localization: false,
-      tickers: false,
-      market_data: true,
-      community_data: false,
-      developer_data: false,
-    },
+  return fetchWithRetry(async () => {
+    const { data } = await axios.get(`${BASE_URL}/coins/${id}`, {
+      timeout: 15000,
+      params: {
+        localization: false,
+        tickers: false,
+        market_data: true,
+        community_data: false,
+        developer_data: false,
+      },
+    });
+    return data;
   });
-  return data;
 };
 
 export const getCryptoHistory = async (
@@ -35,11 +53,23 @@ export const getCryptoHistory = async (
   vsCurrency = 'usd',
   days: number = 30
 ): Promise<{ date: string; price: number }[]> => {
-  const { data } = await axios.get(`${BASE_URL}/coins/${id}/market_chart`, {
-    params: { vs_currency: vsCurrency, days, interval: days <= 1 ? 'hourly' : 'daily' },
+  return fetchWithRetry(async () => {
+    const { data } = await axios.get(`${BASE_URL}/coins/${id}/market_chart`, {
+      timeout: 20000,
+      params: {
+        vs_currency: vsCurrency,
+        days,
+        interval: days <= 1 ? 'hourly' : 'daily',
+      },
+    });
+    // Downsample large datasets so charts stay fast
+    const prices: [number, number][] = data.prices;
+    const step = Math.max(1, Math.floor(prices.length / 200));
+    return prices
+      .filter((_, i) => i % step === 0)
+      .map(([timestamp, price]) => ({
+        date: new Date(timestamp).toLocaleDateString(),
+        price: parseFloat(price.toFixed(6)),
+      }));
   });
-  return data.prices.map(([timestamp, price]: [number, number]) => ({
-    date: new Date(timestamp).toLocaleDateString(),
-    price: parseFloat(price.toFixed(6)),
-  }));
 };

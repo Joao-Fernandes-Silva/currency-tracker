@@ -89,9 +89,9 @@ export default function AllCurrencies() {
           <h1 className="gradient-text" style={{ fontSize: '2.4rem', fontWeight: 800, marginBottom: '10px' }}>
             All Currencies
           </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>
-            Live rates vs <strong style={{ color: 'var(--text-primary)' }}>{mainCurrency}</strong>
-            {lastUpdated && <span style={{ color: 'var(--text-secondary)' }}> · {lastUpdated}</span>}
+          <p style={{ color: 'var(--text-primary)', fontSize: '1.05rem', opacity: 0.75, marginTop: '4px' }}>
+            Live rates vs <strong style={{ color: 'var(--text-primary)', opacity: 1 }}>{mainCurrency}</strong>
+            {lastUpdated && <span> · {lastUpdated}</span>}
           </p>
         </div>
 

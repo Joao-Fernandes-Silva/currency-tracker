@@ -46,7 +46,7 @@ export default function Crypto() {
           <h1 className="gradient-text" style={{ fontSize: '2.4rem', fontWeight: 800, marginBottom: '10px' }}>
             Crypto Markets
           </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>
+          <p style={{ color: 'var(--text-primary)', fontSize: '1.05rem', opacity: 0.75, marginTop: '4px' }}>
             Top 50 cryptocurrencies by market cap · Prices in USD
           </p>
         </div>

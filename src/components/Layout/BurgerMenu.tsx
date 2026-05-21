@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { X, Sun, Moon, Coins } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { X, Sun, Moon, Search, Check } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { SUPPORTED_CURRENCIES, CURRENCY_FLAGS } from '../../services/frankfurterApi';
 
@@ -10,126 +10,218 @@ interface BurgerMenuProps {
 
 export default function BurgerMenu({ isOpen, onClose }: BurgerMenuProps) {
   const { theme, toggleTheme, mainCurrency, setMainCurrency } = useApp();
+  const [currencySearch, setCurrencySearch] = useState('');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Close dropdown on outside click
   useEffect(() => {
-    if (isOpen) document.body.style.overflow = 'hidden';
-    else document.body.style.overflow = '';
-    return () => { document.body.style.overflow = ''; };
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  // Reset search when menu closes
+  useEffect(() => {
+    if (!isOpen) { setCurrencySearch(''); setDropdownOpen(false); }
   }, [isOpen]);
+
+  const filteredCurrencies = Object.entries(SUPPORTED_CURRENCIES).filter(
+    ([code, name]) =>
+      code.toLowerCase().includes(currencySearch.toLowerCase()) ||
+      name.toLowerCase().includes(currencySearch.toLowerCase())
+  );
 
   if (!isOpen) return null;
 
   return (
     <>
-      {/* Backdrop */}
+      {/* Invisible click-away area — does NOT dim the page */}
       <div
-        className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
+        style={{
+          position: 'fixed', inset: 0,
+          zIndex: 48,
+          background: 'transparent',
+        }}
       />
 
-      {/* Drawer */}
+      {/* Slide-in panel */}
       <aside
-        className="fixed top-0 right-0 h-full w-80 z-50 flex flex-col shadow-2xl"
         style={{
+          position: 'fixed',
+          top: '72px',       /* sits right below the navbar */
+          right: 0,
+          width: '320px',
+          height: 'calc(100vh - 72px)',
+          zIndex: 49,
+          display: 'flex',
+          flexDirection: 'column',
           backgroundColor: 'var(--bg-secondary)',
           borderLeft: '1px solid var(--border)',
+          boxShadow: '-12px 0 40px rgba(0,0,0,0.4)',
+          animation: 'slideIn 0.25s ease',
         }}
       >
         {/* Header */}
-        <div
-          className="flex items-center justify-between px-5 py-4"
-          style={{ borderBottom: '1px solid var(--border)' }}
-        >
-          <h2 className="font-semibold text-base" style={{ color: 'var(--text-primary)' }}>
-            Settings
-          </h2>
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '20px 24px', borderBottom: '1px solid var(--border)',
+        }}>
+          <span style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--text-primary)' }}>Settings</span>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors cursor-pointer"
-            style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}
+            style={{
+              width: '32px', height: '32px', borderRadius: '8px', display: 'flex',
+              alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+              backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)',
+              color: 'var(--text-secondary)',
+            }}
           >
             <X size={16} />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-6">
+        <div style={{ flex: 1, overflowY: 'auto', padding: '24px', display: 'flex', flexDirection: 'column', gap: '28px' }}>
 
-          {/* Theme toggle */}
+          {/* ── Theme toggle ───────────────────────────────────── */}
           <section>
-            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--text-secondary)' }}>
+            <p style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '12px' }}>
               Appearance
             </p>
             <button
               onClick={toggleTheme}
-              className="w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all cursor-pointer"
-              style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '14px 16px', borderRadius: '14px', cursor: 'pointer',
+                backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)',
+              }}
             >
-              <span className="flex items-center gap-3" style={{ color: 'var(--text-primary)' }}>
-                {theme === 'dark'
-                  ? <Moon size={16} style={{ color: 'var(--accent)' }} />
-                  : <Sun size={16} style={{ color: 'var(--accent)' }} />}
-                <span className="text-sm font-medium">{theme === 'dark' ? 'Dark Mode' : 'Light Mode'}</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-primary)', fontWeight: 600, fontSize: '14px' }}>
+                {theme === 'dark' ? <Moon size={16} style={{ color: 'var(--accent)' }} /> : <Sun size={16} style={{ color: 'var(--accent)' }} />}
+                {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
               </span>
-              {/* Toggle pill */}
-              <div
-                className="relative w-10 h-5 rounded-full transition-colors duration-300"
-                style={{ backgroundColor: theme === 'dark' ? 'var(--accent)' : 'var(--border)' }}
-              >
-                <div
-                  className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-300"
-                  style={{ transform: theme === 'dark' ? 'translateX(21px)' : 'translateX(2px)' }}
-                />
+              {/* Pill toggle */}
+              <div style={{
+                position: 'relative', width: '42px', height: '22px', borderRadius: '999px',
+                backgroundColor: theme === 'dark' ? 'var(--accent)' : 'var(--border)',
+                transition: 'background-color 0.3s',
+              }}>
+                <div style={{
+                  position: 'absolute', top: '3px',
+                  width: '16px', height: '16px', borderRadius: '50%', backgroundColor: 'white',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+                  transform: theme === 'dark' ? 'translateX(23px)' : 'translateX(3px)',
+                  transition: 'transform 0.3s',
+                }} />
               </div>
             </button>
           </section>
 
-          {/* Main currency */}
-          <section className="flex-1 flex flex-col min-h-0">
-            <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--text-secondary)' }}>
+          {/* ── Base currency ──────────────────────────────────── */}
+          <section style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+            <p style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '4px' }}>
               Base Currency
             </p>
-            <p className="text-xs mb-3" style={{ color: 'var(--text-secondary)' }}>
-              All conversions will use this currency as the base.
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '14px', lineHeight: 1.5 }}>
+              All conversions use this as the base.
             </p>
 
             {/* Currently selected */}
-            <div
-              className="flex items-center gap-3 px-4 py-3 rounded-xl mb-3"
-              style={{ background: 'var(--gradient)', opacity: 0.9 }}
-            >
-              <span className="text-2xl">{CURRENCY_FLAGS[mainCurrency]}</span>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px',
+              borderRadius: '12px', marginBottom: '12px',
+              background: 'var(--gradient)',
+            }}>
+              <span style={{ fontSize: '22px' }}>{CURRENCY_FLAGS[mainCurrency]}</span>
               <div>
-                <p className="font-bold text-white text-sm">{mainCurrency}</p>
-                <p className="text-xs text-white/70">{SUPPORTED_CURRENCIES[mainCurrency]}</p>
+                <p style={{ fontWeight: 700, color: 'white', fontSize: '14px' }}>{mainCurrency}</p>
+                <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)' }}>{SUPPORTED_CURRENCIES[mainCurrency]}</p>
               </div>
-              <Coins size={16} className="ml-auto text-white/70" />
+              <Check size={16} color="white" style={{ marginLeft: 'auto' }} />
             </div>
 
-            <div className="flex flex-col gap-1 overflow-y-auto flex-1 pr-0.5">
-              {Object.entries(SUPPORTED_CURRENCIES).map(([code, name]) => {
-                const selected = mainCurrency === code;
-                return (
-                  <button
-                    key={code}
-                    onClick={() => setMainCurrency(code)}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all cursor-pointer"
-                    style={{
-                      backgroundColor: selected ? 'rgba(139,92,246,0.15)' : 'transparent',
-                      border: selected ? '1px solid rgba(139,92,246,0.3)' : '1px solid transparent',
-                      color: selected ? 'var(--accent)' : 'var(--text-primary)',
-                    }}
-                  >
-                    <span className="text-lg">{CURRENCY_FLAGS[code]}</span>
-                    <div className="flex-1 min-w-0">
-                      <span className="font-semibold text-sm">{code}</span>
-                      <span className="text-xs block truncate" style={{ color: selected ? 'var(--accent)' : 'var(--text-secondary)', opacity: 0.8 }}>{name}</span>
+            {/* Searchable dropdown */}
+            <div ref={dropdownRef} style={{ position: 'relative' }}>
+              {/* Search input */}
+              <div
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '10px',
+                  padding: '11px 14px', borderRadius: '12px',
+                  backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)',
+                  cursor: 'text',
+                }}
+                onClick={() => setDropdownOpen(true)}
+              >
+                <Search size={14} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
+                <input
+                  type="text"
+                  placeholder="Search or select currency…"
+                  value={currencySearch}
+                  onChange={e => { setCurrencySearch(e.target.value); setDropdownOpen(true); }}
+                  onFocus={() => setDropdownOpen(true)}
+                  style={{
+                    flex: 1, background: 'transparent', border: 'none', outline: 'none',
+                    fontSize: '13px', color: 'var(--text-primary)',
+                  }}
+                />
+              </div>
+
+              {/* Dropdown list */}
+              {dropdownOpen && (
+                <div style={{
+                  position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0,
+                  backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)',
+                  borderRadius: '14px', boxShadow: '0 8px 32px rgba(0,0,0,0.35)',
+                  maxHeight: '280px', overflowY: 'auto', zIndex: 99,
+                  animation: 'fadeIn 0.15s ease',
+                }}>
+                  {filteredCurrencies.length === 0 ? (
+                    <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '13px' }}>
+                      No currencies found
                     </div>
-                    {selected && (
-                      <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: 'var(--accent)' }} />
-                    )}
-                  </button>
-                );
-              })}
+                  ) : (
+                    filteredCurrencies.map(([code, name]) => {
+                      const selected = mainCurrency === code;
+                      return (
+                        <button
+                          key={code}
+                          onClick={() => {
+                            setMainCurrency(code);
+                            setCurrencySearch('');
+                            setDropdownOpen(false);
+                          }}
+                          style={{
+                            width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center',
+                            gap: '10px', padding: '10px 14px', cursor: 'pointer', border: 'none',
+                            backgroundColor: selected ? 'rgba(139,92,246,0.12)' : 'transparent',
+                            transition: 'background-color 0.15s',
+                          }}
+                          onMouseEnter={e => {
+                            if (!selected) (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--bg-secondary)';
+                          }}
+                          onMouseLeave={e => {
+                            if (!selected) (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
+                          }}
+                        >
+                          <span style={{ fontSize: '18px', flexShrink: 0 }}>{CURRENCY_FLAGS[code]}</span>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <span style={{ fontWeight: 700, fontSize: '13px', color: selected ? 'var(--accent)' : 'var(--text-primary)' }}>
+                              {code}
+                            </span>
+                            <span style={{ fontSize: '12px', color: 'var(--text-secondary)', marginLeft: '6px' }}>{name}</span>
+                          </div>
+                          {selected && <Check size={14} style={{ color: 'var(--accent)', flexShrink: 0 }} />}
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+              )}
             </div>
           </section>
         </div>

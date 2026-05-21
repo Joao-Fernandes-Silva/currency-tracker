@@ -8,10 +8,11 @@ import PageWrapper from '../components/Layout/PageWrapper';
 import type { HistoricalRate } from '../types';
 
 const PERIODS = [
-  { label: '7d', days: 7 },
-  { label: '1M', days: 30 },
-  { label: '3M', days: 90 },
-  { label: '1Y', days: 365 },
+  { label: '7d',  days: 7 },
+  { label: '1M',  days: 30 },
+  { label: '3M',  days: 90 },
+  { label: '1Y',  days: 365 },
+  { label: '3Y',  days: 1095 },
 ];
 
 const card: React.CSSProperties = {
@@ -81,7 +82,7 @@ export default function CurrencyDetail() {
           <h1 className="gradient-text" style={{ fontSize: '2.8rem', fontWeight: 800, lineHeight: 1 }}>
             {code}
           </h1>
-          <p style={{ color: 'var(--text-secondary)', marginTop: '6px' }}>
+          <p style={{ color: 'var(--text-primary)', opacity: 0.7, marginTop: '6px', fontSize: '1.05rem' }}>
             {SUPPORTED_CURRENCIES[code || ''] || 'Unknown Currency'}
           </p>
         </div>

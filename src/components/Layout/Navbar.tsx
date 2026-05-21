@@ -16,41 +16,61 @@ export default function Navbar() {
 
   return (
     <>
-      <nav
-        style={{
-          backgroundColor: 'var(--bg-secondary)',
-          borderBottom: '1px solid var(--border)',
-          backdropFilter: 'blur(12px)',
-        }}
-        className="sticky top-0 z-40"
-      >
-        <div className="max-w-6xl mx-auto px-6 flex items-center justify-between h-16">
+      <nav style={{
+        backgroundColor: 'var(--bg-secondary)',
+        borderBottom: '1px solid var(--border)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 40,
+      }}>
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '0 32px',
+          height: '72px',
+          display: 'grid',
+          gridTemplateColumns: '1fr auto 1fr',
+          alignItems: 'center',
+        }}>
 
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 shrink-0">
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ background: 'var(--gradient)' }}
-            >
-              <TrendingUp size={16} color="white" />
+          {/* Logo — left */}
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
+            <div style={{
+              width: '36px', height: '36px', borderRadius: '10px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'var(--gradient)',
+            }}>
+              <TrendingUp size={18} color="white" />
             </div>
-            <span className="font-bold text-base tracking-tight" style={{ color: 'var(--text-primary)' }}>
+            <span style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
               CurrencyTrack
             </span>
           </Link>
 
-          {/* Nav links — center */}
-          <div className="hidden md:flex items-center gap-1">
+          {/* Nav links — truly centered */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             {navLinks.map(link => {
               const active = location.pathname === link.to;
               return (
                 <Link
                   key={link.to}
                   to={link.to}
-                  className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
                   style={{
+                    padding: '10px 28px',
+                    borderRadius: '12px',
+                    fontSize: '1rem',
+                    fontWeight: 600,
+                    textDecoration: 'none',
                     color: active ? 'white' : 'var(--text-secondary)',
                     backgroundColor: active ? 'var(--accent)' : 'transparent',
+                    transition: 'all 0.2s',
+                    letterSpacing: '-0.01em',
+                  }}
+                  onMouseEnter={e => {
+                    if (!active) (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--bg-card)';
+                  }}
+                  onMouseLeave={e => {
+                    if (!active) (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
                   }}
                 >
                   {link.label}
@@ -59,41 +79,23 @@ export default function Navbar() {
             })}
           </div>
 
-          {/* Burger menu button — always on the right */}
-          <button
-            onClick={() => setMenuOpen(true)}
-            className="flex items-center justify-center w-9 h-9 rounded-lg transition-colors cursor-pointer shrink-0"
-            style={{
-              backgroundColor: 'var(--bg-card)',
-              border: '1px solid var(--border)',
-              color: 'var(--text-secondary)',
-            }}
-            aria-label="Open settings"
-          >
-            <Menu size={18} />
-          </button>
-        </div>
-
-        {/* Mobile nav links */}
-        <div
-          className="md:hidden flex gap-1 px-6 pb-3"
-        >
-          {navLinks.map(link => {
-            const active = location.pathname === link.to;
-            return (
-              <Link
-                key={link.to}
-                to={link.to}
-                className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all"
-                style={{
-                  color: active ? 'white' : 'var(--text-secondary)',
-                  backgroundColor: active ? 'var(--accent)' : 'transparent',
-                }}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
+          {/* Burger — right, pushed to the far right */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <button
+              onClick={() => setMenuOpen(o => !o)}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                width: '44px', height: '44px', borderRadius: '12px', cursor: 'pointer',
+                backgroundColor: menuOpen ? 'var(--accent)' : 'var(--bg-card)',
+                border: '1px solid var(--border)',
+                color: menuOpen ? 'white' : 'var(--text-secondary)',
+                transition: 'all 0.2s',
+              }}
+              aria-label="Toggle settings"
+            >
+              <Menu size={22} />
+            </button>
+          </div>
         </div>
       </nav>
 
