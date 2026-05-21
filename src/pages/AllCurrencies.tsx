@@ -72,7 +72,7 @@ export default function AllCurrencies() {
   );
 
   return (
-    <PageWrapper maxWidth="1100px">
+    <PageWrapper maxWidth="1200px">
 
       {/* Header */}
       <div

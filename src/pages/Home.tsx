@@ -41,7 +41,7 @@ const stats = [
 
 export default function Home() {
   return (
-    <PageWrapper maxWidth="1100px">
+    <PageWrapper maxWidth="1200px">
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section style={{ textAlign: 'center', paddingTop: '40px', paddingBottom: '72px' }}>
