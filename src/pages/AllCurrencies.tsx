@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, TrendingUp, TrendingDown, ArrowRight } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { getLatestRates, SUPPORTED_CURRENCIES, CURRENCY_FLAGS } from '../services/frankfurterApi';
+import { getLatestRates, SUPPORTED_CURRENCIES } from '../services/frankfurterApi';
 import PageWrapper from '../components/Layout/PageWrapper';
 
 interface CurrencyRow {
@@ -202,10 +202,18 @@ export default function AllCurrencies() {
             >
               {/* Top row */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <span style={{ fontSize: '28px' }}>{CURRENCY_FLAGS[row.code] || '🏳️'}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <div style={{
+                    width: '48px', height: '48px', borderRadius: '12px', flexShrink: 0,
+                    background: 'var(--gradient)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <span style={{ fontSize: '12px', fontWeight: 800, color: 'white', letterSpacing: '0.02em' }}>
+                      {row.code.slice(0, 3)}
+                    </span>
+                  </div>
                   <div>
-                    <p style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text-primary)' }}>{row.code}</p>
+                    <p style={{ fontWeight: 800, fontSize: '18px', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>{row.code}</p>
                     <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>{row.name}</p>
                   </div>
                 </div>

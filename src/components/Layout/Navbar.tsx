@@ -24,13 +24,13 @@ export default function Navbar() {
         zIndex: 40,
       }}>
         <div style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '0 32px',
+          width: '100%',
+          padding: '0 40px',
           height: '72px',
           display: 'flex',
           alignItems: 'center',
           gap: '24px',
+          boxSizing: 'border-box',
         }}>
 
           {/* Logo — left */}
